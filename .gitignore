@@ -1,9 +1,12 @@
-node_modules/# Ignorar ambientes virtuais
+# Ignorar pasta de dependências do Node
+node_modules/
+
+# Ignorar ambientes virtuais do Python
 venv/
 .venv/
 */venv/
 */.venv/
 
-# Ignorar arquivos de config com chaves
+# Ignorar arquivos de configuração com chaves
 .env
 *.env
