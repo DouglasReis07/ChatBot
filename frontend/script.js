@@ -1,4 +1,32 @@
-// frontend/script.js - Versão Final com Saudação Automática no Movimento do Mouse
+// frontend/script.js - Versão Completa com Menu Hover
+
+// ==================================================================
+// LÓGICA DO MENU LATERAL EXPANSÍVEL (ATUALIZADO PARA HOVER)
+// ==================================================================
+const menuBtn = document.getElementById('menu-btn');
+const sidebar = document.getElementById('sidebar');
+const menuIcon = menuBtn.querySelector('i'); // Pega o elemento do ícone
+
+// ABRE o menu ao passar o mouse sobre o botão
+menuBtn.addEventListener('mouseenter', () => {
+    sidebar.classList.add('open');
+    document.body.classList.add('sidebar-open');
+
+    // Troca o ícone para 'X'
+    menuIcon.classList.remove('bi-justify');
+    menuIcon.classList.add('bi-x-lg');
+});
+
+// FECHA o menu ao tirar o mouse de cima da área da sidebar
+sidebar.addEventListener('mouseleave', () => {
+    sidebar.classList.remove('open');
+    document.body.classList.remove('sidebar-open');
+
+    // Garante que o ícone volte ao normal (menu)
+    menuIcon.classList.remove('bi-x-lg');
+    menuIcon.classList.add('bi-justify');
+});
+// ==================================================================
 
 const chatForm = document.getElementById('chat-form');
 const userInput = document.getElementById('user-input');
@@ -8,19 +36,17 @@ const micBtn = document.getElementById('mic-btn');
 
 let conversationHistory = [];
 let availableVoices = [];
-const initialMessage = 'Olá! Como posso te ajudar hoje?';
+const initialMessage = "E aí! Eu sou o DG 😎, seu parceiro virtual. Bora resolver suas dúvidas? Da ideia!";
 
-// Função para carregar as vozes disponíveis
 function loadVoices() {
     availableVoices = window.speechSynthesis.getVoices();
 }
 window.speechSynthesis.onvoiceschanged = loadVoices;
 loadVoices();
 
-// Função principal para fazer o chatbot falar
 function speak(text) {
     if ('speechSynthesis' in window && text.trim() !== '') {
-        window.speechSynthesis.cancel(); // Cancela qualquer fala anterior para evitar sobreposição
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'pt-BR';
         const desiredVoice = availableVoices.find(voice => voice.name === 'Google português do Brasil');
@@ -31,7 +57,6 @@ function speak(text) {
     }
 }
 
-// Lógica para ouvir o usuário (Speech-to-Text)
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 if (SpeechRecognition) {
@@ -52,7 +77,6 @@ if (SpeechRecognition) {
     micBtn.style.display = 'none';
 }
 
-// Função para adicionar uma mensagem visual na caixa de chat
 function addMessage(sender, text) {
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
@@ -64,7 +88,6 @@ function addMessage(sender, text) {
     }
 }
 
-// Evento que lida com o envio da mensagem para o backend
 chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const userMessage = userInput.value.trim();
@@ -92,15 +115,10 @@ chatForm.addEventListener('submit', async (event) => {
     }
 });
 
-// ==================================================================
-// NOVA LÓGICA: ATIVAÇÃO DA VOZ COM O PRIMEIRO MOVIMENTO DO MOUSE
-// ==================================================================
 let hasGreetingBeenSpoken = false;
 
-// Função que espera as vozes carregarem e então fala a saudação
 function speakInitialGreeting() {
-    if(hasGreetingBeenSpoken) return; // Garante que a saudação seja dita apenas uma vez
-
+    if(hasGreetingBeenSpoken) return;
     hasGreetingBeenSpoken = true;
     const voiceCheckInterval = setInterval(() => {
         loadVoices();
@@ -112,25 +130,16 @@ function speakInitialGreeting() {
     }, 100);
 }
 
-// Esta função "acorda" o motor de voz e dispara a saudação
 function primeEngineAndGreet() {
     if(hasGreetingBeenSpoken) return;
-    
     console.log("Primeira interação (mouse move) detectada. Acordando o motor de voz.");
-    // Acorda o motor de voz (uma boa prática)
     const synth = window.speechSynthesis;
     if (synth.state === 'suspended') {
         synth.resume();
     }
-    
     speakInitialGreeting();
-
-    // Remove este listener para não ser acionado novamente
     document.removeEventListener('mousemove', primeEngineAndGreet);
 }
 
-// Adiciona o listener que aguarda o primeiro movimento do mouse
 document.addEventListener('mousemove', primeEngineAndGreet);
-
-// Exibe a mensagem inicial visualmente assim que a página carrega
 addMessage('bot-initial', initialMessage);
